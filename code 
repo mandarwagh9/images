@@ -1,0 +1,87 @@
+#include<iostream>
+
+using namespace std;
+
+class Shape (
+
+protected:
+
+double dimension1, dimension2;
+
+public:
+
+void input_data(double d1, double d2) (
+
+dimension1=d1;
+
+dimension2=d2;
+
+}
+
+virtual double compute_area()=0;
+
+class Triangle:public Shape (
+
+public:
+
+double compute_area()override( return 0.5 dimension1 dimension2;
+
+1:
+
+class Rectangle:public Shape (
+
+public:
+
+double compute_area()override { return dimension1 dimension2;
+
+int main() {
+
+Shape shape;
+
+Triangle triangle;
+
+Rectangle rectangle;
+
+double d1,d2;
+
+int choice:
+
+cout<<"Choose a shape;\n1. Triangle\n2. Rectangle\nEnter Choce:";
+
+cin>>choice;
+
+cout<<"Enter dimensions:\n";
+
+cout<<"Dimension 1:";
+
+cin>>d1;
+
+cout<<"Dimension 2:":
+
+cin>>d2;
+
+if (choice==1) {
+
+shape=&triangle;
+
+shape->input_data(d1,d2);
+
+cout<<"Area of Triangle:"<<shape->compute_area()<<endl;
+
+} else if (choice==2) {
+
+shape=&rectangle;
+
+shape->input_data(d1,d2);
+
+cout<<"Area of Rectangle:"<<shape->compute_area()<<endl;
+
+) else (
+
+Scanned with
+
+cout<<"Invalid choice!"<<endl;
+
+1
+
+return
