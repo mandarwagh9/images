@@ -1,0 +1,91 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+using namespace std;
+
+struct Task {
+    int id;
+    string title;
+    bool done;
+};
+
+vector<Task> tasks;
+int nextId = 1;
+
+void loadTasks() {
+    ifstream in("tasks.txt");
+    Task t;
+    while (in >> t.id) {
+        in.ignore();
+        getline(in, t.title);
+        in >> t.done;
+        in.ignore();
+        tasks.push_back(t);
+        if (t.id >= nextId) nextId = t.id + 1;
+    }
+    in.close();
+}
+
+void saveTasks() {
+    ofstream out("tasks.txt");
+    for (Task t : tasks) {
+        out << t.id << endl << t.title << endl << t.done << endl;
+    }
+    out.close();
+}
+
+void addTask() {
+    Task t;
+    t.id = nextId++;
+    cout << "Enter task title: ";
+    cin.ignore();
+    getline(cin, t.title);
+    t.done = false;
+    tasks.push_back(t);
+}
+
+void showTasks() {
+    for (Task t : tasks) {
+        cout << t.id << ". " << t.title << " [" << (t.done ? "Done" : "Pending") << "]\n";
+    }
+}
+
+void markDone() {
+    int id;
+    cout << "Enter task ID to mark as done: ";
+    cin >> id;
+    for (Task &t : tasks) {
+        if (t.id == id) t.done = true;
+    }
+}
+
+void deleteTask() {
+    int id;
+    cout << "Enter task ID to delete: ";
+    cin >> id;
+    for (int i = 0; i < tasks.size(); i++) {
+        if (tasks[i].id == id) {
+            tasks.erase(tasks.begin() + i);
+            break;
+        }
+    }
+}
+
+int main() {
+    loadTasks();
+    int choice;
+    do {
+        cout << "\n1. Add Task\n2. View Tasks\n3. Mark as Done\n4. Delete Task\n5. Save and Exit\nEnter choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1: addTask(); break;
+            case 2: showTasks(); break;
+            case 3: markDone(); break;
+            case 4: deleteTask(); break;
+            case 5: saveTasks(); break;
+            default: cout << "Invalid choice\n";
+        }
+    } while (choice != 5);
+    return 0;
+}
