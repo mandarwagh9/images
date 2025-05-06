@@ -1,0 +1,112 @@
+#include <iostream> 
+#include <fstream> 
+using namespace std;
+
+class Account { private: int accountNumber; int pin; double balance;
+
+public: Account(int accNum, int p, double bal) { accountNumber = accNum; pin = p; balance = bal; }
+
+bool verifyPin(int enteredPin) {
+    return (enteredPin == pin);
+}
+
+double getBalance() {
+    return balance;
+}
+
+void deposit(double amount) {
+    if (amount > 0) {
+        balance += amount;
+        cout << "Deposited successfully.\n";
+    } else {
+        cout << "Invalid amount.\n";
+    }
+}
+
+void withdraw(double amount) {
+    if (amount > 0 && amount <= balance) {
+        balance -= amount;
+        cout << "Withdrawn successfully.\n";
+    } else {
+        cout << "Invalid amount or insufficient balance.\n";
+    }
+}
+
+void saveToFile() {
+    ofstream file("account.txt");
+    file << accountNumber << " " << pin << " " << balance;
+    file.close();
+}
+
+void displayMenu() {
+    cout << "\nATM Menu:\n";
+    cout << "1. Check Balance\n";
+    cout << "2. Deposit\n";
+    cout << "3. Withdraw\n";
+    cout << "4. Exit\n";
+}
+
+};
+
+Account loadAccount() { ifstream file("account.txt"); int accNum, pin; double balance;
+
+if (file >> accNum >> pin >> balance) {
+    file.close();
+    return Account(accNum, pin, balance);
+} else {
+    // If file doesn't exist, create default account
+    file.close();
+    return Account(12345, 1234, 1000.0);
+}
+
+}
+
+int main() { Account myAccount = loadAccount();
+
+cout << "Welcome to Simple ATM!\n";
+
+int enteredPin;
+cout << "Enter PIN: ";
+cin >> enteredPin;
+
+if (myAccount.verifyPin(enteredPin)) {
+    int choice;
+    do {
+        myAccount.displayMenu();
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            cout << "Current Balance: Rs. " << myAccount.getBalance() << "\n";
+            break;
+        case 2: {
+            double depositAmt;
+            cout << "Enter amount to deposit: ";
+            cin >> depositAmt;
+            myAccount.deposit(depositAmt);
+            break;
+        }
+        case 3: {
+            double withdrawAmt;
+            cout << "Enter amount to withdraw: ";
+            cin >> withdrawAmt;
+            myAccount.withdraw(withdrawAmt);
+            break;
+        }
+        case 4:
+            cout << "Exiting...\n";
+            myAccount.saveToFile();
+            break;
+        default:
+            cout << "Invalid choice.\n";
+        }
+    } while (choice != 4);
+
+} else {
+    cout << "Incorrect PIN. Access denied.\n";
+}
+
+return 0;
+
+}
