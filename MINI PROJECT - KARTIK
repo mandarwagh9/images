@@ -1,112 +1,119 @@
-#include <iostream> 
-#include <fstream> 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <iomanip>
+
 using namespace std;
 
-class Account { private: int accountNumber; int pin; double balance;
+class ATM {
+private:
+    string cardNumber;
+    int pin;
+    double balance;
+    vector<string> miniStatement;
 
-public: Account(int accNum, int p, double bal) { accountNumber = accNum; pin = p; balance = bal; }
+public:
+    ATM(string card, int pinCode, double initialBalance) {
+        cardNumber = card;
+        pin = pinCode;
+        balance = initialBalance;
+    }
 
-bool verifyPin(int enteredPin) {
-    return (enteredPin == pin);
-}
+    bool authenticate(int inputPin) {
+        return pin == inputPin;
+    }
 
-double getBalance() {
-    return balance;
-}
+    void checkBalance() {
+        cout << "Your current balance is: $" << fixed << setprecision(2) << balance << endl;
+    }
 
-void deposit(double amount) {
-    if (amount > 0) {
+    void deposit(double amount) {
+        if (amount <= 0) {
+            cout << "Invalid deposit amount!" << endl;
+            return;
+        }
         balance += amount;
-        cout << "Deposited successfully.\n";
-    } else {
-        cout << "Invalid amount.\n";
+        miniStatement.push_back("Deposited: $" + to_string(amount));
+        cout << "Successfully deposited $" << amount << endl;
     }
-}
 
-void withdraw(double amount) {
-    if (amount > 0 && amount <= balance) {
-        balance -= amount;
-        cout << "Withdrawn successfully.\n";
-    } else {
-        cout << "Invalid amount or insufficient balance.\n";
+    void withdraw(double amount) {
+        if (amount > balance) {
+            cout << "Insufficient balance!" << endl;
+        } else if (amount <= 0) {
+            cout << "Invalid withdrawal amount!" << endl;
+        } else {
+            balance -= amount;
+            miniStatement.push_back("Withdrew: $" + to_string(amount));
+            cout << "Successfully withdrew $" << amount << endl;
+        }
     }
-}
 
-void saveToFile() {
-    ofstream file("account.txt");
-    file << accountNumber << " " << pin << " " << balance;
-    file.close();
-}
-
-void displayMenu() {
-    cout << "\nATM Menu:\n";
-    cout << "1. Check Balance\n";
-    cout << "2. Deposit\n";
-    cout << "3. Withdraw\n";
-    cout << "4. Exit\n";
-}
-
+    void showMiniStatement() {
+        cout << "--- Mini Statement ---" << endl;
+        int count = 0;
+        for (int i = miniStatement.size() - 1; i >= 0 && count < 5; i--, count++) {
+            cout << miniStatement[i] << endl;
+        }
+        if (miniStatement.empty()) {
+            cout << "No transactions yet." << endl;
+        }
+    }
 };
 
-Account loadAccount() { ifstream file("account.txt"); int accNum, pin; double balance;
+int main() {
+    ATM userATM("1234-5678-9012", 4321, 1000.0);
 
-if (file >> accNum >> pin >> balance) {
-    file.close();
-    return Account(accNum, pin, balance);
-} else {
-    // If file doesn't exist, create default account
-    file.close();
-    return Account(12345, 1234, 1000.0);
-}
+    cout << "Welcome to the ATM Machine" << endl;
+    cout << "Enter your 4-digit PIN: ";
+    int inputPin;
+    cin >> inputPin;
 
-}
+    if (!userATM.authenticate(inputPin)) {
+        cout << "Invalid PIN. Access denied." << endl;
+        return 0;
+    }
 
-int main() { Account myAccount = loadAccount();
-
-cout << "Welcome to Simple ATM!\n";
-
-int enteredPin;
-cout << "Enter PIN: ";
-cin >> enteredPin;
-
-if (myAccount.verifyPin(enteredPin)) {
     int choice;
     do {
-        myAccount.displayMenu();
-        cout << "Enter choice: ";
+        cout << "\n----- ATM Menu -----" << endl;
+        cout << "1. Check Balance" << endl;
+        cout << "2. Deposit" << endl;
+        cout << "3. Withdraw" << endl;
+        cout << "4. Mini Statement" << endl;
+        cout << "5. Exit" << endl;
+        cout << "Select an option: ";
         cin >> choice;
 
         switch (choice) {
-        case 1:
-            cout << "Current Balance: Rs. " << myAccount.getBalance() << "\n";
-            break;
-        case 2: {
-            double depositAmt;
-            cout << "Enter amount to deposit: ";
-            cin >> depositAmt;
-            myAccount.deposit(depositAmt);
-            break;
+            case 1:
+                userATM.checkBalance();
+                break;
+            case 2: {
+                double amount;
+                cout << "Enter deposit amount: ";
+                cin >> amount;
+                userATM.deposit(amount);
+                break;
+            }
+            case 3: {
+                double amount;
+                cout << "Enter withdrawal amount: ";
+                cin >> amount;
+                userATM.withdraw(amount);
+                break;
+            }
+            case 4:
+                userATM.showMiniStatement();
+                break;
+            case 5:
+                cout << "Thank you for using the ATM!" << endl;
+                break;
+            default:
+                cout << "Invalid option!" << endl;
         }
-        case 3: {
-            double withdrawAmt;
-            cout << "Enter amount to withdraw: ";
-            cin >> withdrawAmt;
-            myAccount.withdraw(withdrawAmt);
-            break;
-        }
-        case 4:
-            cout << "Exiting...\n";
-            myAccount.saveToFile();
-            break;
-        default:
-            cout << "Invalid choice.\n";
-        }
-    } while (choice != 4);
 
-} else {
-    cout << "Incorrect PIN. Access denied.\n";
-}
+    } while (choice != 5);
 
-return 0;
-
+    return 0;
 }
